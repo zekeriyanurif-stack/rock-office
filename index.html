@@ -313,9 +313,9 @@ function vCheckout(){
     <div class="field"><label for="code">${n}'s details for the card</label>
       <div class="codebox"><code id="code">${esc(line)}</code><button type="button" id="copyBtn">Copy</button></div>
       <span class="hint">Paste this line into the <b>personalization</b> box at checkout. We print ${n}'s card from it.</span></div>
-    <ol class="steps-mini"><li>Tap the button below. We copy the line for you.</li><li>In the shop, paste it into the personalization box.</li><li>Choose your country and pay. Shipping is shown there.</li></ol>
+    <ol class="steps-mini"><li>Tap the button below. We copy the line for you.</li><li>In the shop, paste it into the personalization box.</li><li>Enter your address and pay. Shipping to the US &amp; EU is free.</li></ol>
     <div class="summary"><div class="r"><span>${n}: rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div>
-      <div class="r"><span>Shipping</span><span class="muted">by country, at checkout</span></div></div>
+      <div class="r"><span>Shipping (US &amp; EU)</span><span class="muted">free</span></div></div>
     <div class="cta">${live
       ? `<a class="btn" id="go" href="${esc(CFG.checkoutUrl)}" target="_blank" rel="noopener">Copy & go to checkout</a><p class="sub-note">Opens ${esc(CFG.checkoutName)} in a new tab · ${money(SETTINGS.price)} · free shipping</p>`
       : `<button class="btn" type="button" aria-disabled="true">Shop opens soon</button><p class="sub-note">The shop link isn't set yet. Your rock is saved on this device.</p>`}</div>`;
