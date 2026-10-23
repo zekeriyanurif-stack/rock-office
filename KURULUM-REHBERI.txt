@@ -1,0 +1,80 @@
+ROCK OFFICE — SİTEYİ YAYINA ALMA REHBERİ
+=========================================
+
+Bu klasörde gerçek satışa hazır site var. Siteyi ücretsiz yayına almak için GitHub Pages,
+ödeme için Etsy kullanılır. Müşteri sitede taşına isim verir, sonra Etsy'de öder.
+Siteye hiçbir müşteri bilgisi (adres, telefon, kart) kaydedilmez; bunları Etsy tutar.
+
+KLASÖRDEKİ DOSYALAR
+- index.html   : Ana site (isim verme + tanışma yolculuğu + Etsy'ye yönlendirme)
+- rock.html    : Taşın herkese açık sayfası (QR kod buraya açılır)
+- print.html   : Kart basma aracı (sadece senin için; sipariş kartlarını yazdırırsın)
+- config.js    : AYARLAR. Fiyat, Etsy linki ve site adresi burada. Not Defteri ile açılır.
+- rock.js, style.css, qr.js : Sitenin parçaları. Dokunma.
+
+
+--------------------------------------------------
+ADIM 1 — SİTEYİ YAYINA AL (GitHub Pages, ücretsiz)
+--------------------------------------------------
+1. GitHub Desktop'ı aç.
+2. File > Add local repository... > "rock-office" klasörünü seç.
+3. "This directory does not appear to be a Git repository" derse
+   "create a repository" bağlantısına tıkla > Create repository.
+4. Sağ üstte "Publish repository"ye bas.
+   "Keep this code private" kutusunun İŞARETİNİ KALDIR (ücretsiz GitHub Pages için gerekli).
+   Publish repository.
+5. Tarayıcıda github.com > rock-office deposu > Settings > Pages.
+   Source: "Deploy from a branch", Branch: "main", klasör: "/ (root)" > Save.
+6. 1–2 dakika sonra site şu adreste açılır:
+   https://KULLANICIADIN.github.io/rock-office/
+7. config.js'i Not Defteri ile aç, siteUrl'ye bu adresi yaz (sonunda / olmasın):
+   siteUrl: "https://KULLANICIADIN.github.io/rock-office",
+8. GitHub Desktop'ta: soldaki özete "site adresi" yaz > Commit to main > Push origin.
+
+
+--------------------------------------------------
+ADIM 2 — ETSY DÜKKANINI AÇ
+--------------------------------------------------
+1. etsy.com/sell adresinden dükkân aç. Kimlik, Türk banka hesabı ve Etsy ücretleri
+   için bir kart istenir. Etsy'nin ilan ve satış ücretleri var; güncel tutarları
+   Etsy'nin ücret sayfasından kontrol et.
+2. Yeni ilan (listing) oluştur:
+   - Başlık örneği: Personalized Pet Rock Gift – Named Rock with ID Card and QR Story
+   - Fotoğraflar: gerçek taş, isim kartı, QR kart ve kutu (çizgi taş tek başına yetmez).
+   - Fiyat: config.js'teki fiyatla AYNI olsun.
+   - Kargo: ülke gruplarına göre kargo profili oluştur.
+   - Personalization (kişiselleştirme): AÇIK, "required" (zorunlu), karakter sınırı 256.
+     Alıcıya not: "Paste the line from our website, or write: Name · Skill · Plan"
+3. İlanı yayınla ve ilan linkini kopyala.
+4. config.js'te şunları doldur:
+   checkoutUrl: "https://www.etsy.com/listing/....",
+   price: (Etsy fiyatı),
+   currency: "EUR" ya da "USD",
+   priceIsFinal: true,
+5. GitHub Desktop > Commit to main > Push origin. Birkaç dakika içinde sitede
+   "Copy & go to checkout" butonu Etsy'ye gider ve "Preview" etiketi kalkar.
+
+Not: Etsy, ürünlerin satıcı tarafından yapılmış ya da tasarlanmış olmasını ister.
+Bu paketteki isim kartı, QR hikâye ve ambalaj senin tasarımın. Yine de dükkânı
+açmadan önce Etsy'nin "Creativity Standards" kurallarını bir kez oku.
+
+
+--------------------------------------------------
+ADIM 3 — SİPARİŞ GELİNCE
+--------------------------------------------------
+1. Etsy'de siparişi aç. Personalization satırını kopyala.
+   Örnek: Greg · Paperweight · Do nothing · Note: For your next meeting
+2. Tarayıcıda https://KULLANICIADIN.github.io/rock-office/print.html adresini aç.
+3. Satırı yapıştır (birden fazla sipariş varsa her biri ayrı satıra) > Kartları hazırla
+   > Yazdır (A4). Kesik çizgilerden kes.
+4. Kutuya koy: gerçek taş + isim kartı + QR kart (+ not varsa not kartı).
+5. Kargoya ver. Etsy'de siparişi "shipped" yap ve takip numarasını gir.
+   Müşteriye kargo e-postasını Etsy gönderir.
+
+
+--------------------------------------------------
+SONRA (İSTEĞE BAĞLI)
+--------------------------------------------------
+- Kendi alan adı (ör. rockoffice.com): satın alıp GitHub Pages ayarlarından bağlanabilir.
+- Kendi ödeme sayfası: şirket ve ödeme hesabı (ör. iyzico) olunca site Etsy yerine
+  doğrudan ödeme alacak şekilde geliştirilebilir.

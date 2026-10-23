@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meet this rock · Rock Office</title>
+<meta name="description" content="A rock with a name, a job and a story.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,100&family=Nunito:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.wrap{max-width:620px;margin:0 auto}
+.hero-art{background:var(--stage);border-radius:var(--r-lg);padding:8px}
+.hero-art svg{display:block;width:100%;height:auto}
+.idline{font-family:var(--f-mono);font-size:1rem;line-height:1.6}
+.actions{display:grid;gap:8px}
+</style>
+</head>
+<body>
+<div class="shell wrap">
+  <header class="top">
+    <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span id="brandIcon"></span><span id="brandName">Rock Office</span></a>
+  </header>
+  <main class="panel" id="main"></main>
+  <footer class="footer"><span>This page shows only the rock's name, look and story. Recipient, address and notes stay private.</span></footer>
+</div>
+<script src="config.js"></script>
+<script src="rock.js"></script>
+<script>
+(function(){
+"use strict";
+const CFG = window.ROCK_CONFIG || {};
+document.getElementById("brandName").textContent = CFG.brand || "Rock Office";
+document.getElementById("brandIcon").innerHTML = rockSVG(deriveAppearance("Milo"));
+const main = document.getElementById("main");
+function render(){
+  const o = readRockHash();
+  if (!o){ main.innerHTML = `<h2>This rock is shy.</h2><p class="muted">The link looks incomplete. Try scanning the QR code again.</p><a class="btn" href="index.html">Name your own rock</a>`; return; }
+  const n = escHTML(o.name), app = deriveAppearance(o.name), story = storyFor(n, o.skill, o.plan);
+  const scenes = [o.plan && PLANS[o.plan].scene, o.skill && SKILLS[o.skill].scene].filter(Boolean);
+  document.title = `This is ${o.name} · ${CFG.brand || "Rock Office"}`;
+  main.innerHTML = `
+    <div class="hero-art">${rockSVG(app, {scenes, label:`${n}, a cartoon rock`})}</div>
+    <h1>This is ${n}.</h1>
+    <p class="idline">OCCUPATION: ROCK.${o.skill ? `<br>SPECIAL SKILL: ${SKILLS[o.skill].card.toUpperCase()}.` : ""}${o.plan ? `<br>FIRST PLAN: ${PLANS[o.plan].card.toUpperCase()}.` : ""}</p>
+    <div class="story">${story.map((p,i) => `<div class="panel-s"><div class="pic">${rockSVG(app, {scenes:p.scenes})}</div><span class="no">${i+1} / ${story.length}</span><p>${p.text}</p></div>`).join("")}</div>
+    <section class="panel" style="gap:10px"><h3>Introduce ${n}</h3>
+      <img class="share-img" id="card" alt="This is ${n}. Occupation: rock.">
+      <div class="actions"><button class="btn ghost" id="dl" type="button">Download ${n}'s card</button><button class="btn ghost" id="share" type="button">Share ${n}'s page</button></div></section>
+    <div class="offer" style="text-align:center;justify-items:center"><h3>What would yours do?</h3><p class="muted small">A real rock, its own name card and a story like this one.</p>
+      <a class="btn" href="index.html" style="max-width:360px">Name your rock</a></div>`;
+  const link = location.href;
+  shareCardCanvas(o, link.replace(/^https?:\/\//, "").replace(/#.*/, "") ).then(cv => {
+    const url = cv.toDataURL("image/png"); document.getElementById("card").src = url;
+    document.getElementById("dl").onclick = () => { const a = document.createElement("a"); a.href = url; a.download = `${o.name.replace(/[^\p{L}\p{N}]+/gu, "-")}-rock.png`; document.body.appendChild(a); a.click(); a.remove(); };
+  });
+  document.getElementById("share").onclick = async () => {
+    const text = `This is ${o.name}. Occupation: rock.`;
+    try { if (navigator.share) { await navigator.share({title:text, text, url:link}); return; } } catch(e) { return; }
+    try { await navigator.clipboard.writeText(link); alert("Link copied"); } catch(e) { prompt("Copy this link:", link); }
+  };
+}
+window.addEventListener("hashchange", render);
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rock Office</title>
+<meta name="description" content="A real rock. A very personal gift. Name your rock, give it a job, and we send it with its own name card and illustrated story.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,100&family=Nunito:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+
+<style>
+.arrives-sec{margin-top:48px;display:grid;gap:18px}
+.arrives-head{display:grid;gap:6px;max-width:560px}
+.crate-fig{margin:0;display:grid;gap:8px}
+.crate-art{background:#EFE6D6;border-radius:var(--r-lg);overflow:hidden}
+.crate-art > svg{display:block;width:100%;height:auto}
+.crate-fig figcaption{font-size:.82rem;color:var(--ink-soft)}
+.witb-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:w}
+.witb-list li{display:grid;grid-template-columns:30px 1fr;gap:2px 12px;counter-increment:w}
+.witb-list li::before{content:counter(w);grid-row:span 2;width:28px;height:28px;border-radius:50%;background:var(--sage-soft);color:var(--ok);display:grid;place-items:center;font-weight:900;font-size:.85rem}
+.witb-list b{font-family:var(--f-display);font-weight:600;font-size:1.1rem;font-variation-settings:"SOFT" 100}
+.witb-list span{color:var(--ink-soft);font-size:.95rem}
+.since75{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;border-top:1.5px dashed var(--line);border-bottom:1.5px dashed var(--line);padding:14px 0}
+.since75 .m{font-family:var(--f-mono);font-weight:700;font-size:1.6rem;color:var(--coral)}
+.since75 p{font-family:var(--f-display);font-style:italic;font-size:1.08rem;font-variation-settings:"SOFT" 100}
+@media (min-width:900px){ .arrives-sec{grid-template-columns:1.2fr 1fr;align-items:start;column-gap:40px} .arrives-head,.since75{grid-column:1/-1} }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="top">
+    <button class="brand" id="brand" type="button" aria-label="Rock Office home"><span id="brandIcon"></span><span id="brandName">Rock Office</span></button>
+    <span class="flag" id="flag"><span class="long">Preview · shop opening soon</span><span class="short">Preview</span></span>
+  </header>
+  <div class="layout" id="layout">
+    <div class="stage-col" id="stageCol">
+      <div class="stage">
+        <div class="stage-art" id="stageArt"></div>
+        <div class="tagline"><span class="nametag" id="nameTag">Unnamed rock</span></div>
+        <p class="preview-note" id="stageNote">Digital character for the card and story. The rock you receive is a real, natural stone.</p>
+      </div>
+    </div>
+    <main class="panel" id="panel" aria-live="off"></main>
+  </div>
+
+  <section class="arrives-sec" id="whats-in-the-box" aria-labelledby="witbH">
+    <div class="arrives-head">
+      <span class="eyebrow">What arrives</span>
+      <h2 id="witbH">Everything in the box</h2>
+      <p class="muted">Your rock travels like a passenger, in its own carry-on crate.</p>
+    </div>
+    <figure class="crate-fig"><div id="crateArt" class="crate-art"></div>
+      <figcaption>Illustration. Real photos coming soon. Your rock is natural stone and one of a kind.</figcaption></figure>
+    <ol class="witb-list">
+      <li><b>The carry-on crate</b><span>Air holes, a handle and a boarding pass with your rock's name on it.</span></li>
+      <li><b>A real rock</b><span>Natural stone, about 4–6 cm, resting on a paper nest. Unpainted and one of a kind.</span></li>
+      <li><b>Rock ID card</b><span>Printed with its name, special skill and first plan.</span></li>
+      <li><b>QR story card</b><span>Opens your rock's own page and illustrated story.</span></li>
+      <li><b>Owner's Manual</b><span>Care, feeding and training. Mostly: leave it where it is. <a class="link" id="manualLink" href="manual.html#n=Greg&amp;s=paper&amp;p=nothing&amp;v=1">Read Greg's</a></span></li>
+    </ol>
+    <aside class="since75"><span class="m">1975</span><p>In 1975, about 1.5 million people bought a plain rock in a box. Nobody needed one. Everybody wanted one. We gave ours a name.</p></aside>
+  </section>
+  <footer class="footer" id="foot">
+    <a class="link quiet" href="rock.html#n=Greg&amp;s=paper&amp;p=nothing&amp;v=1">Meet Greg (sample rock page)</a>
+    <span id="footShop"></span>
+  </footer>
+</div>
+<p class="sr" id="announce" aria-live="polite"></p>
+<div id="layer"></div>
+
+<script src="config.js"></script>
+<script src="rock.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------- settings (sample values until real business info arrives) ---------- */
+const CFG = Object.assign({brand:"Rock Office", checkoutUrl:"", checkoutName:"Etsy", price:24, currency:"EUR", priceIsFinal:false, prepDays:"2–3"}, window.ROCK_CONFIG || {});
+const SETTINGS = {price:CFG.price, currency:CFG.currency};
+const money = v => new Intl.NumberFormat("en-IE", {style:"currency", currency:SETTINGS.currency}).format(v);
+
+/* ---------- content catalog ---------- */
+const STEPS = ["name","skills","together","recipient","package"];
+const STEP_LABEL = {name:"Name", skills:"Skills", together:"Together", recipient:"Recipient", package:"Package"};
+
+/* ---------- names ---------- */
+const SEG = (typeof Intl !== "undefined" && Intl.Segmenter) ? new Intl.Segmenter(undefined, {granularity:"grapheme"}) : null;
+const graphemes = s => SEG ? Array.from(SEG.segment(s), x => x.segment) : Array.from(s);
+const MAX_NAME = 24, MAX_NOTE = 120;
+const displayName = s => String(s || "").normalize("NFC").trim().replace(/\s+/g, " ");
+const nameValid = s => { const d = displayName(s); return d.length > 0 && graphemes(d).length <= MAX_NAME && /[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(d); };
+const needsReview = s => /\d|@|https?:|www\.|\.com/i.test(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- draft state ---------- */
+const KEY = "rock-office-draft-live-v1";
+const blank = () => ({step:"name", name:"", appearance:null, skill:null, plan:null, recipient:"friend", note:"", country:"", f:{fullName:"",addr:"",city:"",zip:"",email:"",phone:""}, order:null, view:"journey", flash:"", met:false});
+let S = blank();
+try { const raw = JSON.parse(localStorage.getItem(KEY) || "null"); if (raw && typeof raw === "object") S = Object.assign(blank(), raw, {f:Object.assign(blank().f, raw.f || {})}); } catch(e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+const N = () => esc(displayName(S.name) || "your rock");
+const Nc = () => esc(displayName(S.name) || "Your rock");
+const appearanceNow = () => deriveAppearance(displayName(S.name));
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+/* ---------- stage ---------- */
+const stageArt = document.getElementById("stageArt"), nameTag = document.getElementById("nameTag"), panel = document.getElementById("panel"), layer = document.getElementById("layer");
+let lastKey = "";
+function stageScenes(){
+  const sc = [], idx = STEPS.indexOf(S.step);
+  if (S.view !== "journey") return sc;
+  if (idx >= 1 && S.skill) sc.push(SKILLS[S.skill].scene);
+  if (idx >= 2 && S.plan) sc.push(PLANS[S.plan].scene);
+  return sc;
+}
+function paintStage(anim){
+  let a, label;
+  if (S.view === "done" && S.order){ a = S.order.app; label = S.order.name; }
+  else { a = S.step === "name" ? appearanceNow() : (S.appearance || appearanceNow()); label = displayName(S.name); }
+  const scenes = S.view === "done" && S.order ? [S.order.plan && PLANS[S.order.plan].scene, S.order.skill && SKILLS[S.order.skill].scene].filter(Boolean) : stageScenes();
+  const key = JSON.stringify([a, scenes]);
+  if (key !== lastKey){
+    lastKey = key;
+    stageArt.innerHTML = rockSVG(a, {scenes, label: label ? `${label}, a cartoon rock` : "An unnamed cartoon rock"});
+    if (anim && !reduced()){ const svg = stageArt.querySelector("svg"); svg.classList.add(anim); }
+  }
+  const mini = document.getElementById("mini"); if (mini){ const mk = JSON.stringify(a); if (mini.dataset.k !== mk){ mini.dataset.k = mk; mini.innerHTML = rockSVG(a); } }
+  nameTag.textContent = label || "Unnamed rock";
+  nameTag.classList.toggle("empty", !label);
+}
+function wave(){ if (reduced()) return; const svg = stageArt.querySelector("svg"); if (!svg) return; svg.classList.remove("wave","pop"); void svg.getBBox; svg.style.transformOrigin = "50% 85%"; requestAnimationFrame(() => svg.classList.add("wave")); }
+
+/* ---------- navigation ---------- */
+function announce(t){ const el = document.getElementById("announce"); el.textContent = ""; setTimeout(() => el.textContent = t, 30); }
+function goStep(step){ S.view = "journey"; S.step = step; S.flash = ""; save(); render(true); }
+function goView(view){ S.view = view; save(); render(true); }
+function render(focus){
+  layer.innerHTML = "";
+  ({journey:vJourney, checkout:vCheckout}[S.view] || vJourney)();
+  paintStage("pop");
+  panel.classList.remove("enter"); void panel.offsetWidth; panel.classList.add("enter");
+  if (focus){
+    const h = panel.querySelector("h2, h1"); if (h){ h.setAttribute("tabindex","-1"); if (S.view !== "journey" || S.step !== "name") h.focus({preventScroll:true}); announce(h.textContent); }
+    const top = document.getElementById("layout").getBoundingClientRect().top + scrollY - 8;
+    if (scrollY > top) scrollTo(0, Math.max(0, top));
+  }
+}
+function vJourney(){ ({name:sName, skills:sSkills, together:sTogether, recipient:sRecipient, package:sPackage}[S.step] || sName)(); }
+function progress(){ const i = STEPS.indexOf(S.step); return `<div class="progress"><span>${i+1} / 5 · ${STEP_LABEL[S.step]}</span><span class="dots" aria-hidden="true">${STEPS.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</span></div>`; }
+function offerBlock(){
+  return `<div class="offer"><div class="offer-row"><span class="price">${money(SETTINGS.price)}</span><span class="small muted">${CFG.priceIsFinal ? "" : "sample price · "}shipping calculated by country at checkout</span></div>
+    <div class="chips"><span>A real rock</span><span>Name card</span><span>QR story</span><span>Gift box</span></div>
+    <details class="more"><summary>What exactly arrives?</summary><div class="more-body">
+      <p>A real, natural rock about 4–6 cm, a printed card with the name you chose, a QR card that opens its illustrated story, and a small gift box.</p>
+      <p>The cartoon rock lives on the card and in the story. Your real rock is unpainted and one of a kind.</p>
+      <p>Preparation takes ${CFG.prepDays} working days, then shipping time depends on the country.</p></div></details></div>`;
+}
+
+/* ---- 1. name ---- */
+function sName(){
+  const d = displayName(S.name), ok = nameValid(S.name);
+  panel.innerHTML = `
+    <span class="eyebrow">Make it official.</span>
+    <h1>A real rock. A very personal gift.</h1>
+    <p class="lead">You name it. We send a real rock with its own name card and an illustrated story behind a QR code. <b style="color:var(--ink)">${money(SETTINGS.price)}</b> <span class="small">${CFG.priceIsFinal ? "" : "(sample price) "}+ shipping.</span></p>
+    ${progress()}
+    <h2>First, a name.</h2>
+    <p class="muted">A big moment for something that has been sitting around.</p>
+    <div class="field"><label for="rockName">Your rock's name</label>
+      <div class="name-row"><span class="mini" id="mini" aria-hidden="true"></span>
+      <input class="input big" id="rockName" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Milo" value="${esc(S.name)}" aria-describedby="nameHelp"></div>
+      <div class="row-links"><span class="hint" id="nameHelp">Up to ${MAX_NAME} characters. Shown on the card and its public page.</span><span class="count" id="nameCount"></span></div>
+      <span class="err" id="nameErr" hidden></span></div>
+    <div class="cta"><button class="btn" id="meetBtn" type="button"></button>
+      <div class="row-links"><button class="link quiet" id="tryBtn" type="button">Try Milo, Luna or Greg</button><button class="link" id="pkgBtn" type="button">See my package</button></div></div>
+    ${offerBlock()}`;
+  const inp = document.getElementById("rockName"), btn = document.getElementById("meetBtn"), err = document.getElementById("nameErr"), cnt = document.getElementById("nameCount");
+  let t = null, composing = false;
+  const label = () => {
+    const d = displayName(inp.value), ok = nameValid(inp.value), g = graphemes(d).length;
+    btn.textContent = ok ? `Meet ${d}` : "Name your rock";
+    btn.setAttribute("aria-disabled", ok ? "false" : "true");
+    cnt.textContent = d ? `${g} / ${MAX_NAME}` : "";
+    err.hidden = !d || ok; err.textContent = g > MAX_NAME ? `That's a long name. Keep it to ${MAX_NAME} characters.` : "Use at least one letter or number.";
+    nameTag.textContent = d || "Unnamed rock"; nameTag.classList.toggle("empty", !d);
+  };
+  const look = () => { clearTimeout(t); t = setTimeout(() => { S.appearance = nameValid(S.name) ? appearanceNow() : null; save(); paintStage("pop"); }, 120); };
+  inp.addEventListener("compositionstart", () => composing = true);
+  inp.addEventListener("compositionend", () => { composing = false; S.name = inp.value; save(); label(); look(); });
+  inp.addEventListener("input", e => { if (composing || e.isComposing) return; S.name = inp.value; save(); label(); look(); });
+  inp.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) btn.click(); });
+  btn.onclick = () => {
+    if (!nameValid(inp.value)){ err.hidden = false; err.textContent = displayName(inp.value) ? err.textContent : "Give it a name first. Anything works."; inp.focus(); return; }
+    S.name = displayName(inp.value); S.appearance = appearanceNow(); S.met = true; save();
+    wave(); setTimeout(() => goStep("skills"), reduced() ? 0 : 450);
+  };
+  document.getElementById("tryBtn").onclick = () => { const list = ["Milo","Luna","Greg"], cur = list.indexOf(displayName(inp.value)); inp.value = list[(cur + 1) % 3]; S.name = inp.value; save(); label(); look(); inp.focus(); };
+  document.getElementById("pkgBtn").onclick = () => { if (nameValid(S.name)){ S.name = displayName(S.name); S.appearance = appearanceNow(); } goStep("package"); };
+  label();
+}
+
+/* ---- option list helper ---- */
+function optList(cat, cur, n){
+  return `<div class="opts" role="group">${Object.entries(cat).map(([k,v]) => `<button class="opt" type="button" data-k="${k}" aria-pressed="${cur===k}"><span class="tick" aria-hidden="true">${cur===k?"✓":""}</span><b>${v.title}</b><span class="l">${typeof v.line === "function" ? v.line(n) : v.line}</span></button>`).join("")}</div>`;
+}
+function wireOpts(onPick){ panel.querySelectorAll(".opt[data-k]").forEach(b => b.onclick = () => onPick(b.dataset.k)); }
+
+/* ---- 2. skills ---- */
+function sSkills(){
+  const n = N();
+  panel.innerHTML = `${progress()}
+    ${S.met ? `<p class="react">Meet ${n}. Already making a great first impression. By sitting.</p>` : ""}
+    <h2>What can ${n} do?</h2><p class="muted">Pick a talent. Try all three if you like.</p>
+    ${optList(SKILLS, S.skill, n)}
+    <p class="joke" id="joke">${S.skill ? SKILLS[S.skill].line : ""}</p>
+    <div class="cta"><button class="btn" id="next" type="button">What can we do together?</button>
+      <div class="row-links"><button class="link quiet" id="back" type="button">← Back</button><button class="link" id="pkg" type="button">See my package</button></div></div>`;
+  wireOpts(k => { S.skill = S.skill === k ? null : k; S.met = false; save(); sSkills(); paintStage("pop"); });
+  document.getElementById("next").onclick = () => { S.met = false; goStep("together"); };
+  document.getElementById("back").onclick = () => goStep("name");
+  document.getElementById("pkg").onclick = () => goStep("package");
+}
+
+/* ---- 3. together ---- */
+function sTogether(){
+  const n = N();
+  panel.innerHTML = `${progress()}
+    <h2>What will you do together?</h2><p class="muted">Pick a first plan. It becomes the first page of ${n}'s story.</p>
+    ${optList(PLANS, S.plan, n)}
+    <p class="joke" id="joke">${S.plan ? PLANS[S.plan].line(n) : ""}</p>
+    <div class="cta"><button class="btn" id="next" type="button">Who is ${n} for?</button>
+      <div class="row-links"><button class="link quiet" id="back" type="button">← Back</button><button class="link" id="pkg" type="button">See my package</button></div></div>`;
+  wireOpts(k => { S.plan = S.plan === k ? null : k; save(); sTogether(); paintStage("pop"); });
+  document.getElementById("next").onclick = () => goStep("recipient");
+  document.getElementById("back").onclick = () => goStep("skills");
+  document.getElementById("pkg").onclick = () => goStep("package");
+}
+
+/* ---- 4. recipient ---- */
+function sRecipient(){
+  const n = N(), friend = S.recipient === "friend";
+  const left = MAX_NOTE - graphemes(S.note).length;
+  panel.innerHTML = `${progress()}
+    <h2>Who gets to meet ${n}?</h2><p class="muted">"A friend" is picked to start. Change it anytime.</p>
+    <div class="seg" role="group" aria-label="Recipient">
+      <button class="opt" type="button" data-r="me" aria-pressed="${!friend}"><span class="tick" aria-hidden="true">${!friend?"✓":""}</span><b>For me</b></button>
+      <button class="opt" type="button" data-r="friend" aria-pressed="${friend}"><span class="tick" aria-hidden="true">${friend?"✓":""}</span><b>A friend</b></button></div>
+    <p class="joke">${friend ? "A small rock. A very specific inside joke." : "Your desk has been expecting someone."}</p>
+    <div class="field"><label for="note">${friend ? "Gift note" : "A note on the card"} <span class="muted small">(optional)</span></label>
+      <textarea class="input" id="note" placeholder="For your next meeting that could have been an email.">${esc(S.note)}</textarea>
+      <span class="count" id="noteCount">${left} left</span></div>
+    <p class="hint">We ask for the address at checkout.</p>
+    <div class="cta"><p class="sub-note">A name. A job. Still a rock.</p><button class="btn" id="next" type="button">See ${n}'s package</button>
+      <div class="row-links"><button class="link quiet" id="back" type="button">← Back</button></div></div>`;
+  panel.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { S.recipient = b.dataset.r; save(); sRecipient(); });
+  const note = document.getElementById("note");
+  note.addEventListener("input", e => { if (e.isComposing) return; let g = graphemes(note.value); if (g.length > MAX_NOTE){ note.value = g.slice(0, MAX_NOTE).join(""); g = graphemes(note.value); } S.note = note.value; save(); document.getElementById("noteCount").textContent = `${MAX_NOTE - g.length} left`; });
+  document.getElementById("next").onclick = () => goStep("package");
+  document.getElementById("back").onclick = () => goStep("together");
+}
+
+/* ---- 5. package ---- */
+function rockIdCard(o){
+  const sk = o.skill ? SKILLS[o.skill].card : "Not chosen yet", pl = o.plan ? PLANS[o.plan].card : "Not chosen yet";
+  const foot = o.plan ? `${esc(o.name)}'s first day: ${PLANS[o.plan].first}` : `${esc(o.name)}'s first day: arrived. Sat down. Stayed.`;
+  return `<article class="rockid" aria-label="Rock ID"><div class="rockid-head"><span>Rock ID${o.preview ? " — Preview" : ""}</span><span>${o.no || "No. pending"}</span></div>
+    <div class="rockid-body"><div class="rockid-pic">${rockSVG(o.app)}</div><div class="kv">
+      <div><span class="k">NAME:</span><span class="v">${esc(o.name)}</span></div>
+      <div><span class="k">OCCUPATION:</span><span class="v">Rock</span></div>
+      <div><span class="k">SPECIAL SKILL:</span><span class="v">${sk}</span></div>
+      <div><span class="k">FIRST PLAN:</span><span class="v">${pl}</span></div></div></div>
+    <div class="rockid-foot">${foot}</div></article>`;
+}
+function sPackage(){
+  const has = nameValid(S.name), n = N();
+  if (has){ S.name = displayName(S.name); if (!S.appearance) S.appearance = appearanceNow(); save(); }
+  panel.innerHTML = `${progress()}
+    <h2>Make it official.</h2>
+    ${has ? rockIdCard({name:displayName(S.name), app:S.appearance, skill:S.skill, plan:S.plan, preview:true}) : `
+      <div class="field"><label for="pkgName">Name it first</label><input class="input big" id="pkgName" autocomplete="off" placeholder="Milo" value="${esc(S.name)}"><span class="hint">The card is printed with this name.</span></div>`}
+    ${has ? `<div class="edits"><button class="link quiet" data-go="name" type="button">Edit name</button><button class="link quiet" data-go="skills" type="button">Edit skill</button><button class="link quiet" data-go="together" type="button">Edit plan</button><button class="link quiet" data-go="recipient" type="button">Edit note</button></div>` : ""}
+    <div class="boxanim" aria-hidden="true"><svg viewBox="0 0 160 110"><path d="M20 50l60-22 60 22-60 22z" fill="var(--card)" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/><g class="drop"><rect x="52" y="14" width="40" height="28" rx="4" fill="#FFFDF7" stroke="var(--ink)" stroke-width="2.2" transform="rotate(-8 72 28)"/><path d="M58 26h24M58 33h14" stroke="var(--ink)" stroke-width="2" opacity=".5" transform="rotate(-8 72 28)"/></g><g class="drop d2"><rect x="86" y="10" width="26" height="26" rx="3" fill="#FFFDF7" stroke="var(--ink)" stroke-width="2.2"/><path d="M90 14h6v6h-6zM102 14h6v6h-6zM90 26h6v6h-6zM103 27h4v4h-4z" fill="var(--ink)"/></g><path d="M20 50v34l60 22 60-22V50" fill="var(--card)" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/><path d="M80 72v34" stroke="var(--ink)" stroke-width="2.4"/><path d="M50 61l30 11 30-11" fill="none" stroke="var(--coral)" stroke-width="3"/></svg></div>
+    <h3>Here's what arrives</h3>
+    <ul class="arrives">
+      <li><span class="n">1</span><span><b>A real rock</b><br><span class="muted small">Natural stone, about 4–6 cm. Unpainted and one of a kind.</span></span></li>
+      <li><span class="n">2</span><span><b>A name card</b><br><span class="muted small">Printed with ${has ? n : "the name you choose"}${S.skill ? ` and the special skill “${SKILLS[S.skill].card}”` : ""}.</span></span></li>
+      <li><span class="n">3</span><span><b>A QR story card</b><br><span class="muted small">Opens ${has ? `${n}'s` : "its"} page and illustrated story.</span></span></li>
+      <li><span class="n">4</span><span><b>A small gift box</b>${S.note.trim() ? `<br><span class="muted small">With your note: “${esc(S.note.trim())}”</span>` : ""}</span></li></ul>
+    <p class="honest">The cartoon ${has ? n : "rock"} lives on the card and in the story. The scarf, glasses, cup and laptop are part of the drawing, not the box.</p>
+    <div class="summary"><div class="r"><span>Rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div><div class="r"><span>Shipping</span><span class="muted">by country, next step</span></div></div>
+    <div class="cta"><button class="btn" id="next" type="button">Make it official</button><p class="sub-note">Next: delivery & payment · ${money(SETTINGS.price)} + shipping</p>
+      <div class="row-links"><button class="link quiet" id="back" type="button">← Back</button></div></div>`;
+  panel.querySelectorAll("[data-go]").forEach(b => b.onclick = () => goStep(b.dataset.go));
+  const pn = document.getElementById("pkgName");
+  if (pn) pn.addEventListener("input", e => { if (e.isComposing) return; S.name = pn.value; S.appearance = nameValid(S.name) ? appearanceNow() : null; save(); paintStage("pop"); });
+  if (pn) pn.addEventListener("compositionend", () => { S.name = pn.value; S.appearance = nameValid(S.name) ? appearanceNow() : null; save(); paintStage("pop"); });
+  document.getElementById("next").onclick = () => {
+    if (!nameValid(S.name)){ if (pn){ pn.focus(); pn.setAttribute("aria-invalid","true"); } return; }
+    S.name = displayName(S.name); if (!S.appearance) S.appearance = appearanceNow(); goView("checkout");
+  };
+  document.getElementById("back").onclick = () => goStep(nameValid(S.name) ? "recipient" : "name");
+}
+
+/* ---- checkout handoff ---- */
+function vCheckout(){
+  const name = displayName(S.name), n = esc(name), line = orderLine(name, S.skill, S.plan, S.note), live = !!CFG.checkoutUrl;
+  panel.innerHTML = `<button class="link quiet" id="back" type="button">← Back to the package</button>
+    <h2>Almost official.</h2>
+    <p class="muted">${n} is ready. Checkout happens on our ${esc(CFG.checkoutName)} shop, where payment, shipping and your address are handled safely.</p>
+    <div class="field"><label for="code">${n}'s details for the card</label>
+      <div class="codebox"><code id="code">${esc(line)}</code><button type="button" id="copyBtn">Copy</button></div>
+      <span class="hint">Paste this line into the <b>personalization</b> box at checkout. We print ${n}'s card from it.</span></div>
+    <ol class="steps-mini"><li>Tap the button below. We copy the line for you.</li><li>In the shop, paste it into the personalization box.</li><li>Choose your country and pay. Shipping is shown there.</li></ol>
+    <div class="summary"><div class="r"><span>${n}: rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div>
+      <div class="r"><span>Shipping</span><span class="muted">by country, at checkout</span></div></div>
+    <div class="cta">${live
+      ? `<a class="btn" id="go" href="${esc(CFG.checkoutUrl)}" target="_blank" rel="noopener">Copy & go to checkout</a><p class="sub-note">Opens ${esc(CFG.checkoutName)} in a new tab · ${money(SETTINGS.price)} + shipping</p>`
+      : `<button class="btn" type="button" aria-disabled="true">Shop opens soon</button><p class="sub-note">The shop link isn't set yet. Your rock is saved on this device.</p>`}</div>`;
+  const doCopy = async () => { try { await navigator.clipboard.writeText(line); toast("Copied"); return true; } catch(e){ const r = document.createRange(); r.selectNodeContents(document.getElementById("code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); return false; } };
+  document.getElementById("copyBtn").onclick = doCopy;
+  const go = document.getElementById("go"); if (go) go.addEventListener("click", () => { doCopy(); });
+  document.getElementById("back").onclick = () => goStep("package");
+}
+function toast(m){ const el = document.createElement("div"); el.className = "toast"; el.textContent = m; document.body.appendChild(el); setTimeout(() => el.remove(), 1800); }
+
+/* ---------- boot ---------- */
+document.getElementById("brandIcon").innerHTML = rockSVG(deriveAppearance("Milo"));
+document.getElementById("brand").onclick = () => { S.view = "journey"; S.step = "name"; save(); render(true); };
+document.getElementById("brandName").textContent = CFG.brand;
+document.getElementById("flag").hidden = !!CFG.checkoutUrl && CFG.priceIsFinal;
+if (CFG.checkoutUrl) document.getElementById("footShop").innerHTML = `<a class="link quiet" href="${esc(CFG.checkoutUrl)}" target="_blank" rel="noopener">Our ${esc(CFG.checkoutName)} shop</a>`;
+if (S.view !== "journey" && S.view !== "checkout") S.view = "journey";
+if (!STEPS.includes(S.step)) S.step = "name";
+render(false);
+})();
+</script>
+
+
+<script>
+(function(){
+"use strict";
+const el = document.getElementById("crateArt"); if (!el) return;
+function rng(seed){ let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+/* a natural-looking stone painted on canvas, returned as an image */
+function stonePNG(){
+  const cv = document.createElement("canvas"); cv.width = 520; cv.height = 400; const c = cv.getContext("2d");
+  const cx = 260, cy = 200, rx = 210, ry = 150, r = rng(77);
+  const k = [0.05, 0.035, 0.02, 1.1, 2.4, 4.0];
+  const path = () => { c.beginPath(); for (let i = 0; i <= 90; i++){ const a = i/90*Math.PI*2; const w = 1 + k[0]*Math.sin(2*a+k[3]) + k[1]*Math.sin(3*a+k[4]) + k[2]*Math.sin(5*a+k[5]); const x = cx + Math.cos(a)*rx*w, y = cy + Math.sin(a)*ry*w*(Math.sin(a) > 0 ? .86 : 1); i ? c.lineTo(x,y) : c.moveTo(x,y); } c.closePath(); };
+  path(); const g = c.createRadialGradient(cx-80, cy-70, 20, cx+20, cy+20, 260); g.addColorStop(0,"#CFC8BC"); g.addColorStop(.55,"#A49C90"); g.addColorStop(1,"#6F675D"); c.fillStyle = g; c.fill();
+  c.save(); path(); c.clip();
+  for (let i = 0; i < 2600; i++){ const x = cx + (r()*2-1)*rx, y = cy + (r()*2-1)*ry, s = r()*1.8+.3; c.fillStyle = r() > .5 ? `rgba(255,255,255,${(r()*.18).toFixed(3)})` : `rgba(40,34,28,${(r()*.22).toFixed(3)})`; c.fillRect(x, y, s, s); }
+  for (let i = 0; i < 5; i++){ c.strokeStyle = "rgba(240,236,228,.35)"; c.lineWidth = 1.2 + r()*1.5; c.beginPath(); const x = cx - 150 + r()*300, y = cy - 100 + r()*200; c.moveTo(x, y); c.bezierCurveTo(x+30, y+r()*20-10, x+60, y+r()*30-15, x+90+r()*40, y+r()*30-15); c.stroke(); }
+  const hl = c.createRadialGradient(cx-90, cy-80, 5, cx-90, cy-80, 120); hl.addColorStop(0,"rgba(255,255,255,.35)"); hl.addColorStop(1,"rgba(255,255,255,0)"); c.fillStyle = hl; c.fillRect(0,0,520,400);
+  const sh = c.createLinearGradient(0, cy, 0, cy+ry); sh.addColorStop(0,"rgba(0,0,0,0)"); sh.addColorStop(1,"rgba(0,0,0,.28)"); c.fillStyle = sh; c.fillRect(0,0,520,400);
+  c.restore(); return cv.toDataURL("image/png");
+}
+const r = rng(11), shreds = [];
+for (let i = 0; i < 170; i++){ const x = 150 + r()*330, y = 300 + r()*120, a = (r()*180)|0, l = 18 + r()*26, col = ["#F4EBDB","#EADCC4","#FFF8EC","#E2D2B6"][(r()*4)|0]; shreds.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${l.toFixed(1)}" height="3.4" rx="1.7" fill="${col}" transform="rotate(${a} ${x.toFixed(1)} ${y.toFixed(1)})"/>`); }
+const holes = [0,1,2,3,4,5].map(i => `<ellipse cx="${190 + i*48}" cy="186" rx="12" ry="8" fill="#5E4630"/>`).join("");
+const ink = "#2C2724", kraft = "#C9A06F", kraftD = "#AD8556", kraftL = "#D9B88C";
+let greg = ""; try { greg = rockSVG(deriveAppearance("Greg")).replace("<svg ", '<svg x="0" y="0" width="120" height="90" '); } catch(e) {}
+el.innerHTML = `<svg viewBox="0 0 1000 620" role="img" aria-label="Illustration of the open carry-on crate with a natural rock on a paper nest, a Rock ID card, a QR story card, the owner's manual and a boarding pass tag">
+  <defs><filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#5A4632" flood-opacity=".28"/></filter>
+  <pattern id="kraftTex" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="${kraft}"/><circle cx="1" cy="2" r=".6" fill="${kraftD}" opacity=".35"/><circle cx="4" cy="5" r=".5" fill="${kraftL}" opacity=".5"/></pattern></defs>
+  <rect width="1000" height="620" fill="#EFE6D6"/>
+  <!-- crate -->
+  <g filter="url(#sh)">
+    <path d="M130 150 L520 150 L560 110 L170 110 Z" fill="${kraftL}" stroke="${kraftD}" stroke-width="2"/>
+    <rect x="130" y="150" width="390" height="300" rx="10" fill="url(#kraftTex)" stroke="${kraftD}" stroke-width="2"/>
+    <path d="M520 150 L560 110 L560 410 L520 450 Z" fill="${kraftD}"/>
+    ${holes}
+    <path d="M290 150 C290 80 360 80 360 150" fill="none" stroke="${kraftD}" stroke-width="16" stroke-linecap="round"/>
+    <rect x="150" y="270" width="350" height="165" rx="8" fill="#B78F60" opacity=".55"/>
+    ${shreds.join("")}
+    <image href="${stonePNG()}" x="215" y="248" width="220" height="170"/>
+    <g transform="rotate(-6 250 222)"><rect x="170" y="207" width="190" height="34" rx="4" fill="none" stroke="#C95A43" stroke-width="3"/><text x="265" y="230" text-anchor="middle" font-family="Courier Prime, monospace" font-weight="700" font-size="17" fill="#C95A43" letter-spacing="2">LIVE ROCK · THIS SIDE UP</text></g>
+  </g>
+  <!-- boarding pass tag on handle -->
+  <g filter="url(#sh)"><path d="M352 120 C380 70 420 60 440 40" fill="none" stroke="${ink}" stroke-width="2"/>
+    <g transform="rotate(8 520 70)"><rect x="430" y="22" width="230" height="96" rx="8" fill="#FFFDF7" stroke="${ink}" stroke-width="2"/><rect x="430" y="22" width="230" height="22" rx="8" fill="${ink}"/><text x="442" y="38" font-family="Courier Prime, monospace" font-weight="700" font-size="12" fill="#F6EFE2" letter-spacing="2">BOARDING PASS</text>
+    <text x="442" y="66" font-family="Courier Prime, monospace" font-size="12" fill="#6B6158">PASSENGER</text><text x="442" y="90" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="24" fill="${ink}">GREG</text>
+    <text x="560" y="66" font-family="Courier Prime, monospace" font-size="12" fill="#6B6158">GATE</text><text x="560" y="90" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="24" fill="${ink}">4</text>
+    <line x1="610" y1="50" x2="610" y2="110" stroke="${ink}" stroke-dasharray="4 4"/><text x="635" y="96" font-family="Courier Prime, monospace" font-weight="700" font-size="11" fill="#C95A43" transform="rotate(-90 635 96)">CARRY-ON</text></g></g>
+  <!-- Rock ID card -->
+  <g filter="url(#sh)" transform="rotate(-4 760 230)"><rect x="620" y="170" width="290" height="180" rx="12" fill="#FFFDF7" stroke="${ink}" stroke-width="2"/><rect x="620" y="170" width="290" height="32" rx="12" fill="${ink}"/><rect x="620" y="188" width="290" height="14" fill="${ink}"/>
+    <text x="636" y="192" font-family="Courier Prime, monospace" font-weight="700" font-size="13" fill="#F6EFE2" letter-spacing="3">ROCK ID</text>
+    <rect x="636" y="216" width="104" height="104" rx="10" fill="#FBF5EA"/><g transform="translate(628 236)">${greg}</g>
+    <text x="756" y="240" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="26" fill="${ink}">Greg</text>
+    <text x="756" y="268" font-family="Courier Prime, monospace" font-size="12" fill="${ink}">OCCUPATION: ROCK</text>
+    <text x="756" y="288" font-family="Courier Prime, monospace" font-size="12" fill="${ink}">SKILL: HOLDING</text><text x="756" y="304" font-family="Courier Prime, monospace" font-size="12" fill="${ink}">THINGS DOWN</text></g>
+  <!-- QR card -->
+  <g filter="url(#sh)" transform="rotate(5 700 470)"><rect x="610" y="390" width="170" height="190" rx="10" fill="#FFFDF7" stroke="${ink}" stroke-width="2"/>
+    <g transform="translate(640 410)" fill="${ink}"><rect width="110" height="110" fill="#fff"/><rect x="6" y="6" width="30" height="30"/><rect x="12" y="12" width="18" height="18" fill="#fff"/><rect x="16" y="16" width="10" height="10"/><rect x="74" y="6" width="30" height="30"/><rect x="80" y="12" width="18" height="18" fill="#fff"/><rect x="84" y="16" width="10" height="10"/><rect x="6" y="74" width="30" height="30"/><rect x="12" y="80" width="18" height="18" fill="#fff"/><rect x="16" y="84" width="10" height="10"/><rect x="44" y="8" width="8" height="8"/><rect x="56" y="20" width="8" height="8"/><rect x="44" y="44" width="16" height="8"/><rect x="66" y="48" width="8" height="16"/><rect x="82" y="52" width="16" height="8"/><rect x="48" y="66" width="8" height="8"/><rect x="60" y="78" width="16" height="8"/><rect x="84" y="74" width="8" height="24"/><rect x="44" y="92" width="24" height="8"/></g>
+    <text x="695" y="548" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="16" fill="${ink}">Scan to meet Greg</text></g>
+  <!-- Owner's manual -->
+  <g filter="url(#sh)" transform="rotate(-7 880 480)"><rect x="800" y="390" width="160" height="200" rx="6" fill="${ink}"/><rect x="806" y="396" width="148" height="188" rx="4" fill="none" stroke="#F6EFE2" stroke-opacity=".3"/>
+    <text x="880" y="430" text-anchor="middle" font-family="Courier Prime, monospace" font-size="11" fill="#F6EFE2" letter-spacing="2" opacity=".8">OFFICIAL EDITION</text>
+    <text x="880" y="466" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="22" fill="#F6EFE2">Owner's</text><text x="880" y="492" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="22" fill="#F6EFE2">Manual</text>
+    <ellipse cx="880" cy="535" rx="34" ry="22" fill="#D9D2C6"/><text x="880" y="572" text-anchor="middle" font-family="Courier Prime, monospace" font-size="10" fill="#F6EFE2" opacity=".7">READ BEFORE USE</text></g>
+  <text x="130" y="520" font-family="Fraunces, Georgia, serif" font-style="italic" font-size="22" fill="#6B6158">Paper nest included. Rock is not a fan of turbulence.</text>
+</svg>`;
+})();
+</script>
+</body>
+</html>

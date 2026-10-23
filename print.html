@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kart Basma Aracı · Rock Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,100&family=Nunito:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+:root{--ink:#2C2724;--soft:#6B6158;--paper:#F6EFE2;--card:#FFFDF7;--stage:#FBF5EA;--coral:#C95A43;--line:rgba(44,39,36,.18)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;padding:16px}
+.tool{max-width:900px;margin:0 auto;display:grid;gap:12px}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:600;margin:0;font-size:1.8rem}
+p{margin:0}
+textarea{width:100%;min-height:150px;border:2px solid var(--line);border-radius:14px;padding:12px;font:15px/1.5 "Courier Prime",monospace;background:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{border:0;border-radius:999px;background:var(--coral);color:#fff;font-weight:800;font-size:1rem;padding:12px 20px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.hint{color:var(--soft);font-size:.9rem}
+.err{color:#A3462F;font-weight:800}
+.sheet{display:grid;grid-template-columns:repeat(2, 85mm);gap:6mm;justify-content:center;margin-top:12px}
+.card{width:85mm;height:55mm;background:var(--card);border:1px dashed #b9b0a4;border-radius:3mm;overflow:hidden;position:relative;display:grid;break-inside:avoid;page-break-inside:avoid}
+.idcard{grid-template-columns:30mm 1fr;align-items:center}
+.idcard .pic{background:var(--stage);height:100%;display:grid;place-items:center}
+.idcard .pic svg{width:44mm;height:auto;margin-left:-7mm}
+.idcard .txt{padding:3mm 3.5mm;font-family:"Courier Prime",monospace;font-size:7.6pt;line-height:1.45;min-width:0}
+.idcard .head{font-size:6.5pt;letter-spacing:.14em;background:var(--ink);color:#fff;padding:1mm 2mm;display:inline-block;border-radius:1mm;margin-bottom:1.5mm}
+.idcard .nm{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:15pt;line-height:1.05;overflow-wrap:anywhere;margin:.5mm 0 1.5mm}
+.idcard b{font-weight:700}
+.qrcard{grid-template-columns:30mm 1fr;align-items:center;padding:0 4mm;gap:4mm}
+.qrcard .qr{width:28mm;height:28mm}
+.qrcard .qr svg{width:28mm;height:28mm;display:block}
+.qrcard h3{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:13pt;margin:0 0 1.5mm;line-height:1.1;overflow-wrap:anywhere}
+.qrcard p{font-size:8pt;color:var(--soft)}
+.qrcard .tag{font-family:"Courier Prime",monospace;font-size:7pt;margin-top:2mm;color:var(--coral);font-weight:700}
+.notecard{padding:6mm;align-content:center;gap:2mm}
+.notecard .k{font-family:"Courier Prime",monospace;font-size:7pt;letter-spacing:.12em;color:var(--soft)}
+.notecard .v{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:12pt;line-height:1.3;overflow-wrap:anywhere}
+.label{grid-column:1/-1;font-family:"Courier Prime",monospace;font-size:8pt;color:var(--soft);margin-top:2mm}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff;padding:0}
+  .tool{display:none}
+  .sheet{margin:0}
+  .label{display:none}
+}
+</style>
+</head>
+<body>
+<div class="tool">
+  <h1>Kart basma aracı</h1>
+  <p class="hint">Etsy siparişlerindeki kişiselleştirme satırlarını aşağıya yapıştır. Her sipariş ayrı bir satırda olsun. Örnek: <code>Greg · Paperweight · Do nothing · Note: For your next meeting</code></p>
+  <textarea id="lines" spellcheck="false" placeholder="Greg · Paperweight · Do nothing"></textarea>
+  <div class="row"><button id="make" type="button">Kartları hazırla</button><button class="ghost" id="print" type="button">Yazdır (A4)</button><span class="hint" id="count"></span></div>
+  <p class="err" id="err" hidden></p>
+  <p class="hint">Her sipariş için iki kart çıkar: isim kartı ve QR hikâye kartı. Kişiye özel kullanım kılavuzu için siparişin yanındaki "Kılavuzu yazdır" bağlantısını aç. Not varsa üçüncü bir not kartı eklenir. Kesik çizgilerden kes. QR kod, taşın herkese açık sayfasını açar; içinde müşteri bilgisi yoktur.</p>
+  <p class="hint" id="baseInfo"></p>
+</div>
+<div class="sheet" id="sheet"></div>
+<script src="config.js"></script>
+<script src="rock.js"></script>
+<script src="qr.js"></script>
+<script>
+(function(){
+"use strict";
+const KEY = "rock-office-print-lines";
+const ta = document.getElementById("lines"), sheet = document.getElementById("sheet"), err = document.getElementById("err");
+try { ta.value = localStorage.getItem(KEY) || ""; } catch(e) {}
+const cfgBase = (window.ROCK_CONFIG || {}).siteUrl;
+document.getElementById("baseInfo").textContent = cfgBase ? `QR kodlar şu adrese gider: ${cfgBase}/rock.html` : "Uyarı: config.js içinde siteUrl boş. QR kodlar şu an bu sayfanın adresini kullanıyor. Site yayına girince siteUrl'yi doldur.";
+function make(){
+  try { localStorage.setItem(KEY, ta.value); } catch(e) {}
+  const rows = ta.value.split(/\r?\n/).map(parseLine).filter(Boolean);
+  sheet.innerHTML = ""; err.hidden = true;
+  if (!rows.length){ err.textContent = "Henüz geçerli bir satır yok."; err.hidden = false; return; }
+  const warn = [];
+  rows.forEach((o, i) => {
+    const n = escHTML(o.name), app = deriveAppearance(o.name), link = rockLink(o.name, o.skill, o.plan);
+    if (!o.skill && !o.plan) warn.push(o.name);
+    const lab = document.createElement("div"); lab.className = "label"; lab.textContent = `#${i+1} · ${o.name}${o.skill ? " · " + SKILLS[o.skill].title : ""}${o.plan ? " · " + PLANS[o.plan].title : ""}`;
+    const ml = document.createElement("a"); ml.href = `manual.html#n=${encodeURIComponent(o.name)}&s=${o.skill || ""}&p=${o.plan || ""}&v=${DESIGN_VERSION}`; ml.target = "_blank"; ml.textContent = " · Kılavuzu yazdır (A6) ↗"; ml.style.color = "#C95A43"; lab.appendChild(ml);
+    sheet.appendChild(lab);
+    const id = document.createElement("div"); id.className = "card idcard";
+    id.innerHTML = `<div class="pic">${rockSVG(app)}</div><div class="txt"><span class="head">ROCK ID</span>
+      <div class="nm">${n}</div>
+      <div>OCCUPATION: <b>ROCK</b></div>
+      <div>SPECIAL SKILL: <b>${o.skill ? escHTML(SKILLS[o.skill].card.toUpperCase()) : "TO BE DISCOVERED"}</b></div>
+      <div>FIRST PLAN: <b>${o.plan ? escHTML(PLANS[o.plan].card.toUpperCase()) : "SITTING"}</b></div></div>`;
+    sheet.appendChild(id);
+    const qr = document.createElement("div"); qr.className = "card qrcard";
+    qr.innerHTML = `<div class="qr"></div><div><h3>Scan to meet ${n}.</h3><p>${n}'s ID and illustrated story.</p><div class="tag">Name your rock. Make it official.</div></div>`;
+    sheet.appendChild(qr);
+    try { qr.querySelector(".qr").innerHTML = makeQRSvg(link); }
+    catch(e){ qr.querySelector(".qr").textContent = "QR oluşturulamadı"; }
+    if (o.note){
+      const nc = document.createElement("div"); nc.className = "card notecard";
+      nc.innerHTML = `<div class="k">A NOTE THAT CAME WITH ${n.toUpperCase()}</div><div class="v">“${escHTML(o.note)}”</div>`;
+      sheet.appendChild(nc);
+    }
+  });
+  document.getElementById("count").textContent = `${rows.length} sipariş hazır`;
+  if (warn.length){ err.textContent = `Yetenek/plan okunamadı: ${warn.join(", ")}. Satırın doğru kopyalandığını kontrol et.`; err.hidden = false; }
+}
+document.getElementById("make").onclick = make;
+document.getElementById("print").onclick = () => { if (!sheet.children.length) make(); setTimeout(() => window.print(), 300); };
+if (ta.value.trim()) make();
+})();
+</script>
+</body>
+</html>

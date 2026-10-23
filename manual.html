@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rock Owner's Manual · Rock Office</title>
+<meta name="description" content="The official owner's manual for your rock. Care, feeding, training and other things your rock will ignore.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,100&family=Nunito:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.book{max-width:640px;margin:0 auto;display:grid;gap:18px;padding-bottom:40px}
+.page{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-md);padding:22px 22px 26px;display:grid;gap:10px;position:relative}
+.page .no{position:absolute;right:16px;top:14px;font-family:var(--f-mono);font-size:.72rem;color:var(--ink-soft)}
+.page h2{font-size:1.5rem}
+.page p,.page li{font-size:1.02rem}
+.page ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.cmd{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0}
+.cmd dt{font-family:var(--f-mono);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.86rem;padding-top:2px}
+.cmd dd{margin:0}
+.cover{background:var(--ink);color:var(--paper);text-align:center;justify-items:center;padding:34px 22px}
+.cover .eyebrow{color:var(--paper);opacity:.7}
+.cover h1{font-size:clamp(2rem,7vw,2.8rem)}
+.cover .pic{background:#FBF5EA;border-radius:20px;width:min(260px,70%);padding:6px}
+.cover .pic svg{display:block;width:100%;height:auto}
+.stamp{display:inline-block;border:2px solid currentColor;border-radius:8px;padding:2px 10px;font-family:var(--f-mono);font-weight:700;letter-spacing:.12em;font-size:.8rem;transform:rotate(-4deg)}
+.fill{font-family:var(--f-display);font-weight:600;font-size:1.25rem;border-bottom:2px dashed var(--line);padding:0 4px}
+.warn{background:var(--lav-soft);border-radius:var(--r-sm);padding:10px 12px;font-size:.95rem}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:6px 0 4px}
+@media print{
+  @page{size:A6;margin:8mm}
+  body{background:#fff;padding:0}
+  .top,.toolbar,.footer{display:none}
+  .book{max-width:none;gap:0;padding:0}
+  .page{border:0;border-radius:0;break-after:page;page-break-after:always;min-height:128mm;padding:4mm 2mm;background:#fff;color:#2C2724}
+  .cover{background:#2C2724;color:#F6EFE2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page p,.page li,.cmd dd{font-size:9.5pt}
+  .page h2{font-size:15pt}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span id="brandIcon"></span><span id="brandName">Rock Office</span></a>
+  </header>
+  <div class="toolbar"><button class="btn ghost" id="printBtn" type="button" style="width:auto;padding:10px 20px">Print this manual</button></div>
+  <main class="book" id="book"></main>
+  <footer class="footer"><span>A Rock Office publication. No rocks were rushed in the making of this manual.</span></footer>
+</div>
+<script src="config.js"></script>
+<script src="rock.js"></script>
+<script>
+(function(){
+"use strict";
+const CFG = window.ROCK_CONFIG || {};
+document.getElementById("brandName").textContent = CFG.brand || "Rock Office";
+document.getElementById("brandIcon").innerHTML = rockSVG(deriveAppearance("Milo"));
+const o = readRockHash() || {name:"", skill:null, plan:null};
+const has = !!o.name, n = has ? escHTML(o.name) : "your rock", N = has ? escHTML(o.name) : "Your rock";
+const sk = o.skill ? SKILLS[o.skill] : null, pl = o.plan ? PLANS[o.plan] : null;
+const pages = [
+`<section class="page cover"><span class="eyebrow">Official edition</span>
+  <h1>Owner's Manual</h1>
+  <div class="pic">${rockSVG(deriveAppearance(o.name || "Greg"))}</div>
+  <p>For the care, training and quiet appreciation of ${has ? `<b>${n}</b>` : "your rock"}.</p>
+  <span class="stamp">Read before use. Or don't.</span></section>`,
+
+`<section class="page"><span class="no">1</span><h2>Congratulations</h2>
+  <p>You are now responsible for a rock.</p>
+  <p>${N} has waited a very long time for this moment. Possibly millions of years. It is not upset about the delay.</p>
+  <p>This manual covers everything you need to know. Most of it can be summarised as: leave it where it is.</p></section>`,
+
+`<section class="page"><span class="no">2</span><h2>Arrival</h2>
+  <p>${N} has just completed a long journey in a small box. Give it time to settle in.</p>
+  <ul><li>Remove it gently from its nest.</li><li>Place it somewhere with a view. A desk, a shelf or a windowsill all work.</li><li>Introduce it to the household. It will not introduce itself.</li></ul>
+  <p>Jet lag usually lasts between zero and zero days.</p></section>`,
+
+`<section class="page"><span class="no">3</span><h2>Feeding</h2>
+  <p>${N} does not eat. Please do not take this personally.</p>
+  <p>Do not offer snacks, coffee or leftover pizza. ${N} will not refuse them, but it will not enjoy them either, and you will have to clean the desk.</p></section>`,
+
+`<section class="page"><span class="no">4</span><h2>Basic training</h2>
+  <p>Most rocks learn the basics quickly. Results may vary.</p>
+  <dl class="cmd">
+    <dt>Sit</dt><dd>Mastered on arrival.</dd>
+    <dt>Stay</dt><dd>Exceptional. A natural talent.</dd>
+    <dt>Wait</dt><dd>Also exceptional. ${N} can wait longer than you.</dd>
+    <dt>Come</dt><dd>Needs work. Walk over and pick it up.</dd>
+    <dt>Be quiet</dt><dd>Already done.</dd>
+  </dl></section>`,
+
+`<section class="page"><span class="no">5</span><h2>Advanced training</h2>
+  <dl class="cmd">
+    <dt>Attend meeting</dt><dd>Place ${n} on the table. It will listen to everything and add nothing.</dd>
+    <dt>Hold this</dt><dd>Place paper under ${n}. Training complete.</dd>
+    <dt>Keep a secret</dt><dd>Tell ${n} anything. It has never told anyone.</dd>
+    <dt>Take a break</dt><dd>${N} is always on a break. Join it.</dd>
+  </dl>
+  ${sk ? `<p class="warn">${N} arrived pre-trained as a <b>${escHTML(sk.title.toLowerCase())}</b>. ${escHTML(sk.line)}</p>` : ""}</section>`,
+
+`<section class="page"><span class="no">6</span><h2>Grooming &amp; health</h2>
+  <ul><li>Dust occasionally. ${N} appreciates it but will never say so.</li>
+  <li>A rinse in plain water is a spa day. Dry before returning to the desk.</li>
+  <li>If ${n} seems unwell, it is almost certainly fine. It is a rock.</li>
+  <li>Signs of a happy rock: it is still there.</li></ul></section>`,
+
+`<section class="page"><span class="no">7</span><h2>Safety notice</h2>
+  <p>This is a real rock. Treat it like one.</p>
+  <ul><li>Do not throw ${n}. At anyone. Ever.</li><li>Keep away from very young children and pets who might try to eat it.</li><li>Do not use as a hammer. ${N} is a coworker, not a tool.</li></ul>
+  <p class="warn">Natural stone. Colour and shape are unique. Small marks are character, not damage.</p></section>`,
+
+`<section class="page"><span class="no">8</span><h2>Plans together</h2>
+  ${pl ? `<p>Your first plan: <b>${escHTML(pl.card.toLowerCase())}</b>.</p><p>${escHTML(pl.line(n))}</p>` : `<p>${N} has no plans. This is its favourite kind of plan.</p>`}
+  <p>Other activities ${n} enjoys: watching the window, sitting through Mondays, and being in photos it did not ask to be in.</p></section>`,
+
+`<section class="page"><span class="no">9</span><h2>Registration</h2>
+  <p>This rock is officially registered as:</p>
+  <p class="fill">${has ? n : "&nbsp;"}</p>
+  <p>Occupation: <b>Rock</b>${sk ? `<br>Special skill: <b>${escHTML(sk.card)}</b>` : ""}</p>
+  <p>Scan the QR card in the box to see ${n}'s ID and story.</p></section>`,
+
+`<section class="page"><span class="no">10</span><h2>Warranty</h2>
+  <p>${N} is guaranteed to remain a rock for the rest of your life, and for several thousand years after that.</p>
+  <p>The warranty does not cover being thrown, being lost behind the sofa, or being mistaken for an ordinary rock by people who have not read this manual.</p>
+  <p><b>Name your rock. Make it official.</b></p></section>`
+];
+document.getElementById("book").innerHTML = pages.join("");
+document.getElementById("printBtn").onclick = () => window.print();
+if (has) document.title = `${o.name}'s Owner's Manual · ${CFG.brand || "Rock Office"}`;
+})();
+</script>
+</body>
+</html>
