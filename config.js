@@ -7,7 +7,7 @@ window.ROCK_CONFIG = {
 
   // Sitenin yayındaki adresi. GitHub Pages açılınca buraya yaz, sonunda / olmasın.
   // Örnek: "https://kullaniciadin.github.io/rock-office"
-  siteUrl: "",
+  siteUrl: "https://zekeriyanurif-stack.github.io/rock-office",
 
   // Etsy'deki ürün sayfanın linki. Boş kalırsa sitede "Shop opens soon" yazar.
   // Örnek: "https://www.etsy.com/listing/1234567890/..."
