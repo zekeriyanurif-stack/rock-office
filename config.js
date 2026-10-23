@@ -11,11 +11,11 @@ window.ROCK_CONFIG = {
 
   // Etsy'deki ürün sayfanın linki. Boş kalırsa sitede "Shop opens soon" yazar.
   // Örnek: "https://www.etsy.com/listing/1234567890/..."
-  checkoutUrl: "",
+  checkoutUrl: "https://www.etsy.com/listing/4601367662/personalized-rock-gift-with-name-id-card",
   checkoutName: "Etsy",
 
-  price: 24,                     // Ürün fiyatı (Etsy'deki fiyatla AYNI olmalı)
-  currency: "EUR",               // Para birimi: "EUR" veya "USD"
-  priceIsFinal: false,           // Fiyat kesinleşince true yap ("sample price" yazısı kalkar)
-  prepDays: "2–3"                // Hazırlık süresi (iş günü)
+  price: 44.99,                  // Ürün fiyatı (Etsy'deki fiyatla AYNI olmalı)
+  currency: "USD",               // Para birimi: "EUR" veya "USD"
+  priceIsFinal: true,            // Fiyat kesinleşince true yap ("sample price" yazısı kalkar)
+  prepDays: "2–5"                // Hazırlık süresi (iş günü)
 };

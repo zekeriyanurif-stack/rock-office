@@ -79,7 +79,7 @@
 /* ---------- settings (sample values until real business info arrives) ---------- */
 const CFG = Object.assign({brand:"Rock Office", checkoutUrl:"", checkoutName:"Etsy", price:24, currency:"EUR", priceIsFinal:false, prepDays:"2–3"}, window.ROCK_CONFIG || {});
 const SETTINGS = {price:CFG.price, currency:CFG.currency};
-const money = v => new Intl.NumberFormat("en-IE", {style:"currency", currency:SETTINGS.currency}).format(v);
+const money = v => new Intl.NumberFormat("en-US", {style:"currency", currency:SETTINGS.currency}).format(v);
 
 /* ---------- content catalog ---------- */
 const STEPS = ["name","skills","together","recipient","package"];
@@ -151,7 +151,7 @@ function render(focus){
 function vJourney(){ ({name:sName, skills:sSkills, together:sTogether, recipient:sRecipient, package:sPackage}[S.step] || sName)(); }
 function progress(){ const i = STEPS.indexOf(S.step); return `<div class="progress"><span>${i+1} / 5 · ${STEP_LABEL[S.step]}</span><span class="dots" aria-hidden="true">${STEPS.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</span></div>`; }
 function offerBlock(){
-  return `<div class="offer"><div class="offer-row"><span class="price">${money(SETTINGS.price)}</span><span class="small muted">${CFG.priceIsFinal ? "" : "sample price · "}shipping calculated by country at checkout</span></div>
+  return `<div class="offer"><div class="offer-row"><span class="price">${money(SETTINGS.price)}</span><span class="small muted">${CFG.priceIsFinal ? "" : "sample price · "}free shipping to the US &amp; EU</span></div>
     <div class="chips"><span>A real rock</span><span>Name card</span><span>QR story</span><span>Gift box</span></div>
     <details class="more"><summary>What exactly arrives?</summary><div class="more-body">
       <p>A real, natural rock about 4–6 cm, a printed card with the name you chose, a QR card that opens its illustrated story, and a small gift box.</p>
@@ -165,7 +165,7 @@ function sName(){
   panel.innerHTML = `
     <span class="eyebrow">Make it official.</span>
     <h1>A real rock. A very personal gift.</h1>
-    <p class="lead">You name it. We send a real rock with its own name card and an illustrated story behind a QR code. <b style="color:var(--ink)">${money(SETTINGS.price)}</b> <span class="small">${CFG.priceIsFinal ? "" : "(sample price) "}+ shipping.</span></p>
+    <p class="lead">You name it. We send a real rock with its own name card and an illustrated story behind a QR code. <b style="color:var(--ink)">${money(SETTINGS.price)}</b> <span class="small">${CFG.priceIsFinal ? "" : "(sample price) "}· free shipping to the US &amp; EU.</span></p>
     ${progress()}
     <h2>First, a name.</h2>
     <p class="muted">A big moment for something that has been sitting around.</p>
@@ -290,8 +290,8 @@ function sPackage(){
       <li><span class="n">3</span><span><b>A QR story card</b><br><span class="muted small">Opens ${has ? `${n}'s` : "its"} page and illustrated story.</span></span></li>
       <li><span class="n">4</span><span><b>A small gift box</b>${S.note.trim() ? `<br><span class="muted small">With your note: “${esc(S.note.trim())}”</span>` : ""}</span></li></ul>
     <p class="honest">The cartoon ${has ? n : "rock"} lives on the card and in the story. The scarf, glasses, cup and laptop are part of the drawing, not the box.</p>
-    <div class="summary"><div class="r"><span>Rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div><div class="r"><span>Shipping</span><span class="muted">by country, next step</span></div></div>
-    <div class="cta"><button class="btn" id="next" type="button">Make it official</button><p class="sub-note">Next: delivery & payment · ${money(SETTINGS.price)} + shipping</p>
+    <div class="summary"><div class="r"><span>Rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div><div class="r"><span>Shipping (US &amp; EU)</span><span class="muted">free</span></div></div>
+    <div class="cta"><button class="btn" id="next" type="button">Make it official</button><p class="sub-note">Next: delivery & payment · ${money(SETTINGS.price)} · free shipping</p>
       <div class="row-links"><button class="link quiet" id="back" type="button">← Back</button></div></div>`;
   panel.querySelectorAll("[data-go]").forEach(b => b.onclick = () => goStep(b.dataset.go));
   const pn = document.getElementById("pkgName");
@@ -317,7 +317,7 @@ function vCheckout(){
     <div class="summary"><div class="r"><span>${n}: rock, name card, QR story, gift box</span><span>${money(SETTINGS.price)}</span></div>
       <div class="r"><span>Shipping</span><span class="muted">by country, at checkout</span></div></div>
     <div class="cta">${live
-      ? `<a class="btn" id="go" href="${esc(CFG.checkoutUrl)}" target="_blank" rel="noopener">Copy & go to checkout</a><p class="sub-note">Opens ${esc(CFG.checkoutName)} in a new tab · ${money(SETTINGS.price)} + shipping</p>`
+      ? `<a class="btn" id="go" href="${esc(CFG.checkoutUrl)}" target="_blank" rel="noopener">Copy & go to checkout</a><p class="sub-note">Opens ${esc(CFG.checkoutName)} in a new tab · ${money(SETTINGS.price)} · free shipping</p>`
       : `<button class="btn" type="button" aria-disabled="true">Shop opens soon</button><p class="sub-note">The shop link isn't set yet. Your rock is saved on this device.</p>`}</div>`;
   const doCopy = async () => { try { await navigator.clipboard.writeText(line); toast("Copied"); return true; } catch(e){ const r = document.createRange(); r.selectNodeContents(document.getElementById("code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); return false; } };
   document.getElementById("copyBtn").onclick = doCopy;
